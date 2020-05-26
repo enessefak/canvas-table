@@ -1,7 +1,7 @@
 "use strict";
 
 (function ($) {
-  $.fn.mosaicTable = function (_options) {
+  $.fn.canvasTable = function (_options) {
     const options = $.extend(
       {
         width: 500,
