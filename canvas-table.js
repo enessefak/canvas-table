@@ -35,17 +35,17 @@
     let activeMode;
     let editingIndex = -1;
     let lastClickDate;
+    
+    const canvasWidth = parseInt(options.width, 10);
+    const canvasHeight = parseInt(options.height, 10);
 
-    ctx.canvas.width = options.width;
-    ctx.canvas.height = options.height;
-
-    const canvasWidth = options.width;
-    const canvasHeight = options.height;
+    ctx.canvas.width = canvasWidth;
+    ctx.canvas.height = canvasHeight;
 
     const clear = () => {
-      ctx.clearRect(0, 0, options.width, options.height);
+      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
       ctx.fillStyle = options.fillStyle;
-      ctx.fillRect(0, 0, options.width, options.height);
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
     };
 
     const initArea = async (_image) => {
