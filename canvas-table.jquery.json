@@ -1,0 +1,36 @@
+{
+    "name": "canvas-table",
+    "title": "jQuery Canvas table",
+    "keywords": [
+        "canvas",
+        "table",
+        "picture",
+        "darag and drop"
+    ],
+    "version": "1.0.0",
+    "author": {
+        "name": "Enes Sefa Küccük",
+        "url": "https://github.com/enessefak/canvas-table"
+    },
+    "maintainers": [
+        {
+            "name": "Enes Sefa Küccük",
+            "email": "enes.sefa.k@gmail.com",
+            "url": "https://github.com/enessefak/canvas-table"
+        }
+    ],
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/enessefak/canvas-table"
+        }
+    ],
+    "bugs": "https://github.com/jquery/jquery-color/issues",
+    "homepage": "https://github.com/enessefak/canvas-table",
+    "docs": "https://github.com/enessefak/canvas-table",
+    "download": "https://plugins.jquery.com/canvas-table",
+    "dependencies": {
+        "jquery": ">=3.0.0"
+    }
+ }
+    
