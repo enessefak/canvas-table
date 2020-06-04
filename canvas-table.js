@@ -13,7 +13,7 @@
         strokeStyle: "red",
         strokeDash: 0,
         strokeWidth: 3,
-        visibleAlignLine: true,
+        showAlignmentLines: true,
         onSelected: () => null
       },
       _options
@@ -27,6 +27,7 @@
     const MODE = {
       TRANSLATE: "translate",
       CHANGE: "change",
+      CHANGE_PREVIEW: "change_preview",
       SELECTION: "selection"
     };
 
@@ -93,7 +94,8 @@
 
         image.onload = () => {
           image.width = area.width > image.width ? area.width : image.width;
-          image.height = area.height > image.height ? area.height : image.height;
+          image.height =
+            area.height > image.height ? area.height : image.height;
 
           const xDistance = image.width - area.width;
           const yDistance = image.height - area.height;
@@ -119,7 +121,6 @@
 
       for (let i = 0; i < areas.length; i++) {
         const area = areas[i];
-
         const cx = area.width / 2 + area.xPos;
         const cy = area.height / 2 + area.yPos;
         ctx.save();
@@ -143,7 +144,7 @@
           ctx.strokeStyle = options.strokeStyle;
           ctx.lineWidth = options.strokeWidth;
           ctx.setLineDash([options.strokeDash, options.strokeDash]);
-          if (options.visibleAlignLine) {
+          if (options.showAlignmentLines) {
             ctx.moveTo(area.xPos + area.width, area.yPos + area.height / 2);
             ctx.lineTo(area.xPos, area.yPos + area.height / 2);
 
@@ -317,3 +318,63 @@
     };
   };
 })(jQuery);
+
+$(document).ready(function () {
+  const $canvasTable = $("#canvas").canvasTable({
+    width: 400,
+    height: 400,
+    gap: 5,
+    strokeDash: 5,
+    strokeWidth: 2,
+    showAlignmentLines: true,
+    // css grid template areas
+    templateAreas: ["photo1 photo1 photo1", "photo2 photo3 photo3"],
+    images: [
+      {
+        area: "photo1",
+        source:
+          "https://images.unsplash.com/photo-1589347528952-62cf2bd93f18?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ"
+      },
+      {
+        area: "photo2",
+        source:
+          "https://images.unsplash.com/photo-1587928901212-e90704d83380?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ"
+      },
+      {
+        area: "photo3",
+        source:
+          "https://images.unsplash.com/photo-1588691551142-3da6178a482e?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=400&fit=max&ixid=eyJhcHBfaWQiOjE0NTg5fQ"
+      }
+    ],
+    onSelected(selectedArea) {
+      $("#scaleRange").attr("disabled", false);
+      $("#rotateRange").attr("disabled", false);
+      $("#scaleRange").val(selectedArea.image.scale);
+      $("#rotateRange").val(selectedArea.image.rotate);
+    }
+  });
+
+  $("#scaleRange").on("input", (event) => {
+    $canvasTable.changeScale(event.target.value);
+  });
+
+  $("#rotateRange").on("input", (event) => {
+    $canvasTable.changeRotate(event.target.value);
+  });
+
+  $("#createButton").click(() => {
+    $canvasTable.setDefault();
+    const canvasSource = $canvasTable.createPhoto();
+    const canvasImage = new Image();
+    canvasImage.src = canvasSource;
+    canvasImage.onload = () => {
+      const previewWindow = window.open(
+        "",
+        "_blank",
+        `width=${canvasImage.width}px,height=${canvasImage.height}px`
+      );
+      previewWindow.document.title = "preview table";
+      previewWindow.document.write(canvasImage.outerHTML);
+    };
+  });
+});
