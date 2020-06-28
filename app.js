@@ -58,4 +58,9 @@ $(document).ready(function () {
       previewWindow.document.write(canvasImage.outerHTML);
     };
   });
+
+  // Change frame
+  // setTimeout(() => {
+  //   $canvasTable.changeFrame('frame.jpg', 20)
+  // }, 3000);
 });

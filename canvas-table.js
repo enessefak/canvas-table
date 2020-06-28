@@ -22,7 +22,7 @@
       _options
     );
 
-    const areas = [];
+    let areas = [];
 
     const $canvas = this;
     const ctx = $canvas[0].getContext("2d");
@@ -38,8 +38,8 @@
     let startY;
     let activeMode;
     let editingIndex = -1;
-    const previewData = {};
-    const frame = {
+    let previewData = {};
+    let frame = {
       size: 0,
       source: ''
     };
@@ -341,15 +341,21 @@
     const createPhoto = (type) => $canvas[0].toDataURL(type || "image/png");
 
     const setDefault = () => {
+      areas = [];
       editingIndex = -1;
       activeMode = null;
       $canvas.css("cursor", "auto");
       startX = 0;
       startY = 0;
+      previewData = {};
+      frame = {
+        size: 0,
+        source: ''
+      };
       drawArea();
     };
 
-    const init = async () => {
+    const init = () => {
       const frameImage = new Image();
       frameImage.crossOrigin = "anonymous";
       frameImage.src = options.frameImage;
@@ -363,13 +369,22 @@
       }
     };
 
+    const changeFrame = (frameImage, frameWidth) => {
+      setDefault()
+      options.frameImage = frameImage
+      options.frameWidth = frameWidth
+      init()
+      return $canvas;
+    };
+
     init();
 
     return {
       changeScale,
       changeRotate,
       createPhoto,
-      setDefault
+      setDefault,
+      changeFrame
     };
   };
 })(jQuery);
