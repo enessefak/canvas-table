@@ -37,11 +37,14 @@
     let startY;
     let activeMode;
     let editingIndex = -1;
-    let lastClickDate;
-    let frameSource;
+    const previewData = {};
+    const frame = {
+      size: 0,
+      source: ''
+    };
 
-    const canvasWidth = parseInt(options.width, 10);
-    const canvasHeight = parseInt(options.height, 10);
+    const canvasWidth = parseInt(options.width, 10)
+    const canvasHeight = parseInt(options.height, 10)
 
     ctx.canvas.width = canvasWidth;
     ctx.canvas.height = canvasHeight;
@@ -60,10 +63,10 @@
       };
 
       const rowsLength = options.templateAreas.length;
-      const heightUnit = canvasHeight / rowsLength;
+      const heightUnit = ((canvasHeight - (frame.size * 2)) / rowsLength);
 
       const columnsLength = options.templateAreas[0].split(" ").length;
-      const widthUnit = canvasWidth / columnsLength;
+      const widthUnit = ((canvasWidth - (frame.size * 2)) / columnsLength);
 
       for (let rowIndex = 0; rowIndex < rowsLength; rowIndex++) {
         const columns = options.templateAreas[rowIndex].split(" ");
@@ -82,11 +85,13 @@
         }
       }
 
-      area.xPos = matchedColumns[0] * widthUnit + options.gap / 2;
-      area.yPos = matchedRows[0] * heightUnit + options.gap / 2;
+      area.xPos = (matchedColumns[0] * widthUnit) + frame.size
+      area.yPos = (matchedRows[0] * heightUnit) + frame.size
 
-      area.width = matchedColumns.length * widthUnit - options.gap;
-      area.height = matchedRows.length * heightUnit - options.gap;
+      console.log(heightUnit, matchedRows[0])
+
+      area.width = (matchedColumns.length * widthUnit)
+      area.height = (matchedRows.length * heightUnit)
 
       const image = new Image();
       image.crossOrigin = "anonymous";
@@ -121,6 +126,16 @@
 
     const drawArea = () => {
       clear();
+      if (frame.source) {
+        ctx.drawImage(
+          frame.source,
+          0,
+          0,
+          canvasWidth,
+          canvasHeight,
+        );
+      }
+
       for (let i = 0; i < areas.length; i++) {
         const area = areas[i];
         const cx = area.width / 2 + area.xPos;
@@ -157,12 +172,17 @@
         }
       }
 
-      if (frameSource) {
-        const frameTexture = ctx.createPattern(frameSource, "repeat");
-        ctx.strokeStyle = frameTexture;
-        ctx.setLineDash([0]);
-        ctx.lineWidth = options.frameWidth;
-        ctx.strokeRect(0, 0, canvasWidth, canvasHeight);
+      if (activeMode === MODE.CHANGE_PREVIEW) {
+        const isRectangle = previewData.image.width > previewData.image.height
+        ctx.globalAlpha = 0.8;
+        ctx.drawImage(
+          previewData.image,
+          previewData.xPos,
+          previewData.yPos,
+          isRectangle ? 200 : 150,
+          isRectangle ? 150 : 200,
+        );
+        ctx.globalAlpha = 1;
       }
     };
 
@@ -175,7 +195,10 @@
           e.offsetY <= area.yPos + area.height
       );
 
-    const changeImage = (fromAreaId, toAreaId) => {
+    const changeImage = () => {
+      const fromAreaId = previewData.fromAreaId;
+      const toAreaId = previewData.toAreaId;
+
       activeMode = MODE.SELECTION;
       editingIndex = toAreaId;
 
@@ -211,6 +234,20 @@
       drawArea();
     };
 
+    const changePreview = (fromAreaId, toAreaId, e) => {
+      activeMode = MODE.CHANGE_PREVIEW
+      const fromArea = areas[fromAreaId]
+
+      if (fromArea) {
+        previewData.image = fromArea.image
+        previewData.xPos = e.offsetX;
+        previewData.yPos = e.offsetY;
+        previewData.fromAreaId = fromAreaId;
+        previewData.toAreaId = toAreaId;
+        drawArea();
+      }
+    }
+
     const moveImage = (e) => {
       const editingArea = areas[editingIndex];
       const overOtherImageIndex = getAreaIndexByPosition(e);
@@ -218,8 +255,9 @@
       if (overOtherImageIndex > -1 && overOtherImageIndex !== editingIndex) {
         startX = -e.offsetX;
         startY = -e.offsetY;
-        changeImage(editingIndex, overOtherImageIndex);
+        changePreview(editingIndex, overOtherImageIndex, e);
       } else {
+        activeMode = MODE.TRANSLATE
         $canvas.css("cursor", "move");
         editingArea.image.xTranslate = startX + e.offsetX;
         editingArea.image.yTranslate = startY + e.offsetY;
@@ -247,20 +285,19 @@
         const editingArea = areas[editingIndex];
         startX = editingArea.image.xTranslate - e.offsetX;
         startY = editingArea.image.yTranslate - e.offsetY;
-        lastClickDate = new Date();
         activeMode = MODE.TRANSLATE;
       }
     };
 
     const handleMouseUp = (e) => {
       e.preventDefault();
-      selectMode();
+      activeMode === MODE.CHANGE_PREVIEW ? changeImage() : selectMode();
     };
 
     const handleMouseMove = (e) => {
       if (editingIndex < 0 || !activeMode) return;
       e.preventDefault();
-      if (activeMode === MODE.TRANSLATE || activeMode === MODE.CHANGE)
+      if (activeMode === MODE.TRANSLATE || activeMode === MODE.CHANGE || activeMode === MODE.CHANGE_PREVIEW)
         moveImage(e);
     };
 
@@ -308,23 +345,25 @@
       $canvas.css("cursor", "auto");
       startX = 0;
       startY = 0;
-      lastClickDate = null;
       drawArea();
     };
 
     const init = async () => {
-      const areasMapping = await Promise.all(options.images.map(initArea));
-      areas.push(...areasMapping);
       if (options.frameImage) {
         const frameImage = new Image();
         frameImage.crossOrigin = "anonymous";
         frameImage.src = options.frameImage;
 
-        frameImage.onload = () => {
-          frameSource = frameImage;
+        frameImage.onload = async () => {
+          frame.source = frameImage;
+          frame.size = options.frameWidth * canvasWidth / frameImage.width
+          const areasMapping = await Promise.all(options.images.map(initArea));
+          areas.push(...areasMapping);
           drawArea();
         };
       } else {
+        const areasMapping = await Promise.all(options.images.map(initArea));
+        areas.push(...areasMapping);
         drawArea();
       }
     };
