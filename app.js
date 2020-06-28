@@ -6,8 +6,7 @@ $(document).ready(function () {
     strokeDash: 5,
     strokeWidth: 2,
     showAlignmentLines: true,
-    frameWidth: 25,
-    frameImage: "https://i.ibb.co/fDzCXr7/cerceve.jpg",
+    frameWidth: 5,
     // css grid template areas
     templateAreas: ["photo1 photo1 photo1", "photo2 photo3 photo3"],
     images: [
@@ -59,8 +58,8 @@ $(document).ready(function () {
     };
   });
 
-  // Change frame
-  // setTimeout(() => {
-  //   $canvasTable.changeFrame('frame.jpg', 20)
-  // }, 3000);
+  // Change frame 3 second
+  setTimeout(() => {
+    $canvasTable.changeFrame('https://i.ibb.co/fDzCXr7/cerceve.jpg', 25)
+  }, 3000);
 });
