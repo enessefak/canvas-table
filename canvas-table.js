@@ -14,7 +14,8 @@
         strokeDash: 0,
         strokeWidth: 3,
         frameImage: "",
-        frameWidth: 0,
+        frameWidth: 5,
+        frameImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQAQMAAAC6caSPAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRFAAAAp3o92gAAAAF0Uk5TAEDm2GYAAAAqSURBVHic7cExAQAAAMKg9U/tbwagAAAAAAAAAAAAAAAAAAAAAAAAAIA3T7AAATkWl3gAAAAASUVORK5CYII=',
         showAlignmentLines: true,
         onSelected: () => null
       },
@@ -85,13 +86,13 @@
         }
       }
 
-      area.xPos = (matchedColumns[0] * widthUnit) + frame.size
-      area.yPos = (matchedRows[0] * heightUnit) + frame.size
+      area.xPos = (matchedColumns[0] * widthUnit) + frame.size + (options.gap * matchedColumns[0])
+      area.yPos = (matchedRows[0] * heightUnit) + frame.size + (options.gap * matchedRows[0])
 
       console.log(heightUnit, matchedRows[0])
 
-      area.width = (matchedColumns.length * widthUnit)
-      area.height = (matchedRows.length * heightUnit)
+      area.width = (matchedColumns.length * widthUnit) - (options.gap * matchedColumns[0])
+      area.height = (matchedRows.length * heightUnit) - (options.gap * matchedRows[0])
 
       const image = new Image();
       image.crossOrigin = "anonymous";
@@ -138,8 +139,8 @@
 
       for (let i = 0; i < areas.length; i++) {
         const area = areas[i];
-        const cx = area.width / 2 + area.xPos;
-        const cy = area.height / 2 + area.yPos;
+        const cx = area.xPos + area.image.xTranslate + 0.5 * area.width
+        const cy = area.yPos + area.image.yTranslate + 0.5 * area.height;
         ctx.save();
         ctx.beginPath();
         ctx.rect(area.xPos, area.yPos, area.width, area.height);
@@ -150,8 +151,8 @@
         ctx.clip();
         ctx.drawImage(
           area.image,
-          area.image.xPos + area.image.xTranslate / area.image.scale,
-          area.image.yPos + area.image.yTranslate / area.image.scale,
+          area.image.xPos + area.image.xTranslate,
+          area.image.yPos + area.image.yTranslate,
           area.image.width,
           area.image.height
         );
@@ -349,19 +350,13 @@
     };
 
     const init = async () => {
-      if (options.frameImage) {
-        const frameImage = new Image();
-        frameImage.crossOrigin = "anonymous";
-        frameImage.src = options.frameImage;
+      const frameImage = new Image();
+      frameImage.crossOrigin = "anonymous";
+      frameImage.src = options.frameImage;
 
-        frameImage.onload = async () => {
-          frame.source = frameImage;
-          frame.size = options.frameWidth * canvasWidth / frameImage.width
-          const areasMapping = await Promise.all(options.images.map(initArea));
-          areas.push(...areasMapping);
-          drawArea();
-        };
-      } else {
+      frameImage.onload = async () => {
+        frame.source = frameImage;
+        frame.size = options.images.length > 1 ? (options.frameWidth || options.gap) * canvasWidth / frameImage.width : 0
         const areasMapping = await Promise.all(options.images.map(initArea));
         areas.push(...areasMapping);
         drawArea();
