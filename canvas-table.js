@@ -126,7 +126,11 @@
         const cy = area.yPos + area.image.yTranslate + 0.5 * area.height;
         ctx.save();
         ctx.beginPath();
-        ctx.rect(area.xPos, area.yPos, area.width, area.height);
+        if (previewData.toAreaId === i) {
+          ctx.rect(area.xPos + 5, area.yPos + 5, area.width - 10, area.height - 10);
+        } else {
+          ctx.rect(area.xPos, area.yPos, area.width, area.height);
+        }
         ctx.translate(cx, cy);
         ctx.scale(area.image.scale, area.image.scale);
         ctx.rotate((Math.PI / 180) * area.image.rotate);
@@ -182,6 +186,7 @@
     const changeImage = () => {
       const fromAreaId = previewData.fromAreaId;
       const toAreaId = previewData.toAreaId;
+      previewData = {}
 
       activeMode = MODE.SELECTION;
       editingIndex = toAreaId;
@@ -200,15 +205,16 @@
       fromArea.image.yPos =
         toArea.yPos - (fromArea.image.height - toArea.height) / 2;
 
-      toArea.image.xPos =
-        fromArea.xPos - (toArea.image.width - fromArea.width) / 2;
-      toArea.image.yPos =
-        fromArea.yPos - (toArea.image.height - fromArea.height) / 2;
-
       areas[fromAreaId] = {
         ...fromArea,
         image: toArea.image
       };
+
+
+      toArea.image.xPos =
+        fromArea.xPos - (toArea.image.width - fromArea.width) / 2;
+      toArea.image.yPos =
+        fromArea.yPos - (toArea.image.height - fromArea.height) / 2;
 
       areas[toAreaId] = {
         ...toArea,
@@ -242,6 +248,7 @@
         changePreview(editingIndex, overOtherImageIndex, e);
       } else {
         activeMode = MODE.TRANSLATE
+        previewData = {}
         $canvas.css("cursor", "move");
         editingArea.image.xTranslate = startX + e.offsetX;
         editingArea.image.yTranslate = startY + e.offsetY;
@@ -335,9 +342,9 @@
     };
 
     const init = async () => {
-        const areasMapping = await Promise.all(options.images.map(initArea));
-        areas.push(...areasMapping);
-        drawArea();
+      const areasMapping = await Promise.all(options.images.map(initArea));
+      areas.push(...areasMapping);
+      drawArea();
     };
 
     init();
