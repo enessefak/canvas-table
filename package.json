@@ -1,0 +1,30 @@
+{
+  "name": "jquery-canvas-table",
+  "version": "1.0.0",
+  "main": "dist/canvas-table.js",
+  "repository": "https://github.com/enessefak/canvas-table.git",
+  "author": "enes.sefa.k <enes.sefa.k@gmail.com>",
+  "license": "MIT",
+  "keywords": [
+    "jquery-plugin",
+    "ecosystem:jquery",
+    "canvas",
+    "table",
+    "picture",
+    "drag and drop"
+  ],
+  "scripts": {
+    "dev": "parcel watch canvas-table.js --no-cache",
+    "build": "parcel build canvas-table.js --no-cache --no-content-hash"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.0.0-0",
+    "@babel/plugin-transform-runtime": "^7.10.3",
+    "babel-core": "^6.26.3",
+    "babel-preset-env": "^1.7.0",
+    "parcel-bundler": "^1.12.4"
+  },
+  "peerDependencies": {
+    "jquery": ">=3.0.0"
+  }
+}
