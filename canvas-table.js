@@ -13,9 +13,6 @@
         strokeStyle: "red",
         strokeDash: 0,
         strokeWidth: 3,
-        frameImage: "",
-        frameWidth: 5,
-        frameImage: 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZAAAAGQAQMAAAC6caSPAAAAAXNSR0IB2cksfwAAAAlwSFlzAAALEwAACxMBAJqcGAAAAANQTFRFAAAAp3o92gAAAAF0Uk5TAEDm2GYAAAAqSURBVHic7cExAQAAAMKg9U/tbwagAAAAAAAAAAAAAAAAAAAAAAAAAIA3T7AAATkWl3gAAAAASUVORK5CYII=',
         showAlignmentLines: true,
         onSelected: () => null
       },
@@ -39,21 +36,18 @@
     let activeMode;
     let editingIndex = -1;
     let previewData = {};
-    let frame = {
-      size: 0,
-      source: ''
-    };
 
-    const canvasWidth = parseInt(options.width, 10)
-    const canvasHeight = parseInt(options.height, 10)
+    const gap = parseInt(options.gap, 10)
+    const canvasWidth = parseInt(options.width, 10) - gap
+    const canvasHeight = parseInt(options.height, 10) - gap
 
-    ctx.canvas.width = canvasWidth;
-    ctx.canvas.height = canvasHeight;
+    ctx.canvas.width = canvasWidth + gap;
+    ctx.canvas.height = canvasHeight + gap;
 
     const clear = () => {
-      ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
       ctx.fillStyle = options.fillStyle;
-      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     };
 
     const initArea = async (_image) => {
@@ -64,10 +58,10 @@
       };
 
       const rowsLength = options.templateAreas.length;
-      const heightUnit = ((canvasHeight - (frame.size * 2)) / rowsLength);
+      const heightUnit = ((canvasHeight) / rowsLength);
 
       const columnsLength = options.templateAreas[0].split(" ").length;
-      const widthUnit = ((canvasWidth - (frame.size * 2)) / columnsLength);
+      const widthUnit = ((canvasWidth) / columnsLength);
 
       for (let rowIndex = 0; rowIndex < rowsLength; rowIndex++) {
         const columns = options.templateAreas[rowIndex].split(" ");
@@ -86,13 +80,11 @@
         }
       }
 
-      area.xPos = (matchedColumns[0] * widthUnit) + frame.size + (options.gap * matchedColumns[0])
-      area.yPos = (matchedRows[0] * heightUnit) + frame.size + (options.gap * matchedRows[0])
+      area.xPos = (matchedColumns[0] * widthUnit) + gap
+      area.yPos = (matchedRows[0] * heightUnit) + gap
 
-      console.log(heightUnit, matchedRows[0])
-
-      area.width = (matchedColumns.length * widthUnit) - (options.gap * matchedColumns[0])
-      area.height = (matchedRows.length * heightUnit) - (options.gap * matchedRows[0])
+      area.width = (matchedColumns.length * widthUnit) - gap
+      area.height = (matchedRows.length * heightUnit) - gap
 
       const image = new Image();
       image.crossOrigin = "anonymous";
@@ -127,15 +119,6 @@
 
     const drawArea = () => {
       clear();
-      if (frame.source) {
-        ctx.drawImage(
-          frame.source,
-          0,
-          0,
-          canvasWidth,
-          canvasHeight,
-        );
-      }
 
       for (let i = 0; i < areas.length; i++) {
         const area = areas[i];
@@ -348,33 +331,13 @@
       startX = 0;
       startY = 0;
       previewData = {};
-      frame = {
-        size: 0,
-        source: ''
-      };
       drawArea();
     };
 
-    const init = () => {
-      const frameImage = new Image();
-      frameImage.crossOrigin = "anonymous";
-      frameImage.src = options.frameImage;
-
-      frameImage.onload = async () => {
-        frame.source = frameImage;
-        frame.size = options.images.length > 1 ? (options.frameWidth || options.gap) * canvasWidth / frameImage.width : 0
+    const init = async () => {
         const areasMapping = await Promise.all(options.images.map(initArea));
         areas.push(...areasMapping);
         drawArea();
-      }
-    };
-
-    const changeFrame = (frameImage, frameWidth) => {
-      setDefault()
-      options.frameImage = frameImage
-      options.frameWidth = frameWidth
-      init()
-      return $canvas;
     };
 
     init();
@@ -383,8 +346,7 @@
       changeScale,
       changeRotate,
       createPhoto,
-      setDefault,
-      changeFrame
+      setDefault
     };
   };
 })(jQuery);
