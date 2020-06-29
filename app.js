@@ -58,8 +58,5 @@ $(document).ready(function () {
     };
   });
 
-  // Change frame 3 second
-  setTimeout(() => {
-    $canvasTable.changeFrame('https://i.ibb.co/fDzCXr7/cerceve.jpg', 25)
-  }, 3000);
+  // $canvasTable.changeFrame('https://i.ibb.co/fDzCXr7/cerceve.jpg', 25)
 });
