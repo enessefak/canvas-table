@@ -331,7 +331,6 @@
     const createPhoto = (type) => $canvas[0].toDataURL(type || "image/png");
 
     const setDefault = () => {
-      areas = [];
       editingIndex = -1;
       activeMode = null;
       $canvas.css("cursor", "auto");
