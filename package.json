@@ -1,6 +1,6 @@
 {
   "name": "jquery-canvas-table",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/canvas-table.js",
   "repository": "https://github.com/enessefak/canvas-table.git",
   "author": "enes.sefa.k <enes.sefa.k@gmail.com>",
