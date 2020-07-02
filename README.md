@@ -1,7 +1,8 @@
 
 # Canvas table
 
-Canvas table is a jquery plugin
+Canvas table is a jquery plugin\
+[Preview](https://codepen.io/EnesSefaK/pen/yLYQgMg)
 
 ## Usage
 
